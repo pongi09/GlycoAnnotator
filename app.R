@@ -32,7 +32,7 @@ ui <- fluidPage(
       numericInput("intensityThreshold", "Annotate peaks above this intensity:", value = 0, min = -100, max = Inf),
       sliderInput("massTolerance", "Mass Tolerance:", min = -0.05, max = 0.05, value = c(-0.01, 0.01), step = 0.005),
       sliderInput("maxOverlap", "Max Overlap", min = 1, max = 50, value = 5, step = 1),
-      selectInput("annotationType", "Annotation Type:", choices = c("Text", "Image"))
+      selectInput("annotationType", "Annotation Type:", choices = c("Text", "Image + Text", "Image"))
     ),
     
     # Show MS plot
@@ -67,7 +67,7 @@ server <- function(input, output) {
     
     p <- ggplot(filteredSpectrum, aes(x = mass, y = intensity)) +
       geom_line() +
-      geom_point(data = filteredPeaks, aes(x = mass, y = intensity), color = "red", size = 1) +
+      #geom_point(data = filteredPeaks, aes(x = mass, y = intensity), color = "red", size = 1) +
       labs(title = "Mass spectrum", x = "m/z", y = "Intensity") +
       theme_minimal() +
       coord_cartesian(xlim = input$massRange)
@@ -87,12 +87,25 @@ server <- function(input, output) {
                           max.overlaps = input$maxOverlap,
                           segment.color = 'grey')}
         
-      else if (input$annotationType == "Image") {
+      else if (input$annotationType == "Image + Text") {
+        annotatedPeaks <- annotatedPeaks %>%
+          mutate(y_position = intensity * 1.2) %>%
+          
         p <- p +
-          geom_image(data = annotatedPeaks, aes(x = mass.x, y = intensity, image = image_link),
-                     size = 0.5)
+          geom_image(data = annotatedPeaks, aes(x = mass.x, y = y_position, image = image_link), size = 0.1) +
+          geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
+            nudge_y = 0.1 * max(filteredSpectrum$intensity),
+            max.overlaps = input$maxOverlap,
+            segment.color = 'grey')}
+      
+      else if (input$annotationType == "Image") {
+        annotatedPeaks <- annotatedPeaks %>%
+          mutate(y_position = intensity * 1.2) %>%
+          print()
+        
+        p <- p +
+          geom_image(data = annotatedPeaks, aes(x = mass.x, y = y_position, image = image_link), size = 0.1)}
 
-      }
     }
     
     p
