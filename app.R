@@ -76,20 +76,15 @@ server <- function(input, output) {
       annotationData <- annotationLibrary()
       
       annotatedPeaks <- filteredPeaks %>%
-        difference_inner_join(annotationData, by = "mass", max_dist = input$massTolerance)
-      
-      annotatedPeaks <- annotatedPeaks %>%
+        difference_inner_join(annotationData, by = "mass", max_dist = input$massTolerance) %>%
         group_by(annotation) %>%
-        filter(max(mass.x))
+        filter(intensity == max(intensity))
       
       if (input$annotationType == "Text") {
         p <- p +
           geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
                           nudge_y = 0.1 * max(filteredSpectrum$intensity),
-                          #nudge_y = 5,
                           max.overlaps = input$maxOverlap,
-                          #box.padding = 0.5,
-                          #min.segment.length = 0,
                           segment.color = 'grey')}
         
       else if (input$annotationType == "Image") {
