@@ -67,7 +67,7 @@ server <- function(input, output) {
     
     p <- ggplot(filteredSpectrum, aes(x = mass, y = intensity)) +
       geom_line() +
-      #geom_point(data = filteredPeaks, aes(x = mass, y = intensity), color = "red", size = 1) +
+      geom_point(data = filteredPeaks, aes(x = mass, y = intensity), color = "red", size = 1) +
       labs(title = "Mass spectrum", x = "m/z", y = "Intensity") +
       theme_minimal() +
       coord_cartesian(xlim = input$massRange)
