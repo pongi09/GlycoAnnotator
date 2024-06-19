@@ -93,7 +93,7 @@ server <- function(input, output) {
           print()
         
         p <- p +
-          geom_image(data = annotatedPeaks, aes(x = mass.x, y = y_position, image = image_link), size = 0.1) +
+          geom_image(data = annotatedPeaks, aes(x = mass.x, y = as.numeric(y_position), image = image_link), nudge_y =10, size = 0.1) +
                     geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
                           nudge_y = 0.1 * max(filteredSpectrum$intensity),
                           max.overlaps = input$maxOverlap,
