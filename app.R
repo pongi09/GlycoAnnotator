@@ -15,6 +15,7 @@ library(dplyr)
 library(ggplot2)
 library(magrittr)
 library(fuzzyjoin)
+library
 
 # Define UI for application 
 ui <- fluidPage(
@@ -30,7 +31,8 @@ ui <- fluidPage(
       sliderInput("massRange", "Select Displayed Mass Range:", min = 500, max = 5000, value = c(500, 1000), step = 25),
       numericInput("intensityThreshold", "Annotate peaks above this intensity:", value = 0, min = -100, max = Inf),
       sliderInput("massTolerance", "Mass Tolerance:", min = -0.05, max = 0.05, value = c(-0.01, 0.01), step = 0.005),
-      sliderInput("maxOverlap", "Max Overlap", min = 1, max = 50, value = 5, step = 1)
+      sliderInput("maxOverlap", "Max Overlap", min = 1, max = 50, value = 5, step = 1),
+      selectInput("annotationType", "Annotation Type:", choices = c("Text", "Image"))
     ),
     
     # Show MS plot
@@ -41,6 +43,7 @@ ui <- fluidPage(
 )
 
 server <- function(input, output) {
+  
   massSpectrum <- reactive({
     req(input$spectrumFile)
     read.csv(input$spectrumFile$datapath, header = TRUE)
@@ -75,15 +78,22 @@ server <- function(input, output) {
       annotatedPeaks <- filteredPeaks %>%
         difference_inner_join(annotationData, by = "mass", max_dist = input$massTolerance)
       
-      p <- p +
-        geom_text_repel(data = annotatedPeaks,
-                        aes(x = mass.x, y = intensity, label = annotation), 
-                        nudge_y = 0.1 * max(filteredSpectrum$intensity),
-                        #nudge_y = 5,
-                        max.overlaps = input$maxOverlap,
-                        #box.padding = 0.5,
-                        #min.segment.length = 0,
-                        segment.color = 'grey')
+      if (input$annotationType == "Text") {
+        p <- p +
+          geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
+                          nudge_y = 0.1 * max(filteredSpectrum$intensity),
+                          #nudge_y = 5,
+                          max.overlaps = input$maxOverlap,
+                          #box.padding = 0.5,
+                          #min.segment.length = 0,
+                          segment.color = 'grey')}
+        
+      else if (input$annotationType == "Image") {
+        p <- p +
+          geom_image(data = annotatedPeaks, aes(x = mass.x, y = intensity, image = image_link),
+                     size = 1,
+                     nudge_y = 0.1)
+      }
     }
     
     p
