@@ -91,8 +91,15 @@ server <- function(input, output) {
       else if (input$annotationType == "Image") {
         p <- p +
           geom_image(data = annotatedPeaks, aes(x = mass.x, y = intensity, image = image_link),
-                     size = 1,
-                     nudge_y = 0.1)
+                     size = 0.1,
+                     nudge_y = 0.1 * max(filteredSpectrum$intensity),
+                     nudge_x = 0) +
+          geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
+                        color = "white",
+                        nudge_y = 0.1 * max(filteredSpectrum$intensity),
+                        max.overlaps = input$maxOverlap,
+                        segment.color = 'grey')
+        
       }
     }
     
