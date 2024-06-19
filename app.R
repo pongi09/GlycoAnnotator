@@ -15,7 +15,7 @@ library(dplyr)
 library(ggplot2)
 library(magrittr)
 library(fuzzyjoin)
-library
+library(ggimage)
 
 # Define UI for application 
 ui <- fluidPage(
@@ -78,6 +78,10 @@ server <- function(input, output) {
       annotatedPeaks <- filteredPeaks %>%
         difference_inner_join(annotationData, by = "mass", max_dist = input$massTolerance)
       
+      annotatedPeaks <- annotatedPeaks %>%
+        group_by(annotation) %>%
+        filter(max(mass.x))
+      
       if (input$annotationType == "Text") {
         p <- p +
           geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
@@ -91,15 +95,8 @@ server <- function(input, output) {
       else if (input$annotationType == "Image") {
         p <- p +
           geom_image(data = annotatedPeaks, aes(x = mass.x, y = intensity, image = image_link),
-                     size = 0.1,
-                     nudge_y = 0.1 * max(filteredSpectrum$intensity),
-                     nudge_x = 0) +
-          geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
-                        color = "white",
-                        nudge_y = 0.1 * max(filteredSpectrum$intensity),
-                        max.overlaps = input$maxOverlap,
-                        segment.color = 'grey')
-        
+                     size = 0.5)
+
       }
     }
     
