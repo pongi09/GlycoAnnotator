@@ -90,13 +90,14 @@ server <- function(input, output) {
       else if (input$annotationType == "Image + Text") {
         annotatedPeaks <- annotatedPeaks %>%
           mutate(y_position = intensity * 1.2) %>%
-          
+          print()
+        
         p <- p +
           geom_image(data = annotatedPeaks, aes(x = mass.x, y = y_position, image = image_link), size = 0.1) +
-          geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
-            nudge_y = 0.1 * max(filteredSpectrum$intensity),
-            max.overlaps = input$maxOverlap,
-            segment.color = 'grey')}
+                    geom_text_repel(data = annotatedPeaks, aes(x = mass.x, y = intensity, label = annotation),
+                          nudge_y = 0.1 * max(filteredSpectrum$intensity),
+                          max.overlaps = input$maxOverlap,
+                          segment.color = 'grey')}
       
       else if (input$annotationType == "Image") {
         annotatedPeaks <- annotatedPeaks %>%
@@ -106,6 +107,7 @@ server <- function(input, output) {
         p <- p +
           geom_image(data = annotatedPeaks, aes(x = mass.x, y = y_position, image = image_link), size = 0.1)}
 
+          
     }
     
     p
